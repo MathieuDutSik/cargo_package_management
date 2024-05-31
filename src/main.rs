@@ -79,10 +79,16 @@ fn get_ordering(digraph: &Vec<Vec<usize>>) -> Option<Vec<usize>> {
         if let Some(vert) = opt {
             l_depend.push(vert);
             l_status[vert] = 1;
-            println!("Inserting vert={}", vert);
         } else {
             return None;
         }
+    }
+    let mut set = BTreeSet::new();
+    for vert in &l_depend {
+        set.insert(vert);
+    }
+    if set.len() != n_vert {
+        panic!("There are duplication inside of the l_depend");
     }
     Some(l_depend)
 }
@@ -175,6 +181,10 @@ fn main() {
         }
     }
     let n_packages = packages_set.len();
+    println!("n_packages={} pos={}", n_packages, pos);
+    if n_packages != pos {
+        panic!("The n_packages is different from pos");
+    }
     for package in packages_vec.clone() {
         println!("package={}", package);
     }
@@ -231,7 +241,7 @@ fn main() {
             println!("No ordering found");
         }
         Some(cycle) => {
-            println!("One ordering found");
+            println!("One ordering found |cycle|={}", cycle.len());
             for vert in cycle {
                 println!("{}", packages_vec[vert]);
             }

@@ -135,7 +135,16 @@ fn main() {
     let n_arg = argument.len();
     println!("n_arg={}", n_arg);
     if n_arg == 1 {
-        println!("Program is used as found_dependencies [FilePackage] [main_cargo] [file_opt]");
+        println!("Program is used as order_dependencies [FilePackage] [main_cargo] [file_opt]");
+        println!("");
+        println!("INPUT:");
+        println!("FilePackage: the file containing at each line the package");
+        println!("main_cargo: the virtual workspace Cargo.toml description");
+        println!("file_opt: Can be partial (only use [dependencies]) or full ([dependencies] and [dev-dependencies])");
+        println!("");
+        println!("OUTPUT:");
+        println!("--If there is no cycle, then an ordering of the package is produced.");
+        println!("--Otherwise, the minimal cycles are printed in output");
         std::process::exit(1)
     }
     let package_list_file = argument[1].clone();

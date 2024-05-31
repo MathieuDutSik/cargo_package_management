@@ -51,14 +51,16 @@ fn get_depends(manifest: Manifest, file_opt: &String) -> Vec<String> {
 fn get_appendable_vertex(digraph: &Vec<Vec<usize>>, l_status: &Vec<usize>) -> Option<usize> {
     let n_vert = digraph.len();
     for u in 0..n_vert {
-        let mut n_uncover = 0;
-        for ent in &digraph[u] {
-            if l_status[*ent] == 0 {
-                n_uncover += 1;
+        if l_status[u] == 0 {
+            let mut n_uncover = 0;
+            for ent in &digraph[u] {
+                if l_status[*ent] == 0 {
+                    n_uncover += 1;
+                }
             }
-        }
-        if n_uncover == 0 {
-            return Some(u);
+            if n_uncover == 0 {
+                return Some(u);
+            }
         }
     }
     None
@@ -77,11 +79,51 @@ fn get_ordering(digraph: &Vec<Vec<usize>>) -> Option<Vec<usize>> {
         if let Some(vert) = opt {
             l_depend.push(vert);
             l_status[vert] = 1;
+            println!("Inserting vert={}", vert);
         } else {
             return None;
         }
     }
     Some(l_depend)
+}
+
+
+
+fn get_shortest_cycles(digraph: &Vec<Vec<usize>>) -> Vec<Vec<usize>> {
+    let n_vert = digraph.len();
+    let mut cycles = Vec::new();
+    for i_vert in 0..n_vert {
+        let mut cycles_a = vec![vec![i_vert]];
+        loop {
+            let mut cycles_b = Vec::new();
+            for cycle_a in cycles_a {
+                let last_vert : usize = cycle_a.last().unwrap().clone();
+                let mut is_cycle = false;
+                for vert in &digraph[last_vert] {
+                    if *vert == i_vert {
+                        is_cycle = true;
+                    }
+                }
+                if is_cycle {
+                    cycles.push(cycle_a);
+                } else {
+                    for vert in &digraph[last_vert] {
+                        let new_vert = *vert;
+                        if new_vert > i_vert {
+                            let mut cycle_b = cycle_a.clone();
+                            cycle_b.push(new_vert);
+                            cycles_b.push(cycle_b);
+                        }
+                    }
+                }
+            }
+            if cycles_b.len() == 0 {
+                break;
+            }
+            cycles_a = cycles_b.clone();
+        }
+    }
+    cycles
 }
 
 
@@ -124,7 +166,7 @@ fn main() {
         }
     }
     let n_packages = packages_set.len();
-    for package in packages_vec {
+    for package in packages_vec.clone() {
         println!("package={}", package);
     }
 
@@ -165,19 +207,37 @@ fn main() {
         }
     }
     for i_vert in 0..n_packages {
-        let n_dep = digraph_dependency[i_vert].len();
-        println!("i_vert={} n_dep={}", i_vert, n_dep);
+//        let n_dep = digraph_dependency[i_vert].len();
+//        println!("i_vert={} n_dep={}", i_vert, n_dep);
+        print!("i_vert={} {} =", i_vert, packages_vec[i_vert]);
+        for j_vert in digraph_dependency[i_vert].clone() {
+            print!(" {}", packages_vec[j_vert]);
+        }
+        println!("");
     }
 
-    
     let ordering = get_ordering(&digraph_dependency);
     match ordering {
         None => {
             println!("No ordering found");
         }
-        Some(_) => {
+        Some(cycle) => {
             println!("One ordering found");
+            for vert in cycle {
+                println!("{}", packages_vec[vert]);
+            }
         }
     };
+    let cycles = get_shortest_cycles(&digraph_dependency);
+    println!("|cycles|={}", cycles.len());
+    let mut i_cycle = 0;
+    for cycle in cycles {
+        print!("i_cycle={} :", i_cycle);
+        for pos in cycle {
+            print!(" {}", packages_vec[pos]);
+        }
+        println!("");
+        i_cycle += 1;
+    }
 }
 

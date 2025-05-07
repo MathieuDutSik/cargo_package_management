@@ -6,4 +6,7 @@ edition = "2021"
 [dependencies]
 cargo_toml = "0.20.2"
 
+[[bin]]
+name = "order_dependencies"
+path = "src/main_order_dependencies.rs"
 

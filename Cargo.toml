@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 cargo_toml = "0.20.2"
+serde_json = "1.0.111"
 
 [[bin]]
 name = "order_dependencies"

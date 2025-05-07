@@ -10,3 +10,8 @@ cargo_toml = "0.20.2"
 name = "order_dependencies"
 path = "src/main_order_dependencies.rs"
 
+
+[[bin]]
+name = "search_unused_dependencies"
+path = "src/main_search_unused_dependencies.rs"
+
